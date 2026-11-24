@@ -1,0 +1,31 @@
+# Documentos de trabajo locales (contexto para Claude Code y checklist personal)
+CLAUDE.md
+CHECKLIST.md
+
+# Datos (MVTec AD se descarga aparte, ver README)
+data/
+
+# Salidas de Hydra, Lightning y WandB
+outputs/
+lightning_logs/
+wandb/
+*.ckpt
+
+# Entorno virtual
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editores y sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

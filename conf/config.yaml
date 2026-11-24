@@ -1,0 +1,16 @@
+# Configuracion principal. Hydra compone este archivo con un archivo de cada grupo.
+# El modelo no tiene valor por defecto: se elige con un override, por ejemplo "model=cnn_scratch".
+defaults:
+  - data: mvtec
+  - model: null
+  - trainer: default
+  - logger: wandb
+  - _self_
+
+seed: 42
+
+# Rutas relativas a la raiz del repositorio (el codigo las resuelve contra esa raiz,
+# asi funcionan igual desde notebooks/ que desde la raiz).
+paths:
+  output_dir: outputs
+  checkpoint_dir: outputs/checkpoints

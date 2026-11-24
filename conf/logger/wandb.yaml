@@ -1,0 +1,8 @@
+# Argumentos de lightning.pytorch.loggers.WandbLogger
+project: MVTecDestilado
+entity: null
+name: null
+tags: []
+log_model: false
+save_dir: outputs
+offline: false
