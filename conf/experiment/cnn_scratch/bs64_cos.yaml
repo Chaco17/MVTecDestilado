@@ -1,0 +1,18 @@
+# @package _global_
+# Twice the batch size (less noisy gradients, half the steps per epoch) and a learning rate that
+# decays from 1e-3 to 1e-5 following a cosine: big steps at the start and fine adjustments at the end.
+defaults:
+  - override /model: cnn_scratch
+
+name: cnn_scratch-bs64_cos
+description: AdamW lr coseno 1e-3 -> 1e-5, batch 64
+
+data:
+  batch_size: 64
+
+model:
+  scheduler:
+    _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+    _partial_: true          # the optimizer is passed later, in configure_optimizers()
+    T_max: ${trainer.max_epochs}
+    eta_min: 1.0e-5

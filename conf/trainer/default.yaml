@@ -1,19 +1,9 @@
-# Argumentos del lightning.Trainer y de los callbacks de entrenamiento.
+# Arguments of lightning.Trainer. The callbacks and the logger come from their own groups
+# and are passed when the Trainer is instantiated.
+_target_: lightning.Trainer
 max_epochs: 50
 accelerator: auto
 devices: 1
 precision: 16-mixed
 log_every_n_steps: 10
-
-# EarlyStopping es obligatorio en todos los entrenamientos (enunciado)
-early_stopping:
-  monitor: val_loss
-  mode: min
-  patience: 5
-  min_delta: 0.0
-
-# ModelCheckpoint guarda el mejor modelo segun la misma metrica
-checkpoint:
-  monitor: val_loss
-  mode: min
-  save_top_k: 1
+enable_progress_bar: false   # the EpochSummary callback prints one line per epoch instead

@@ -1,0 +1,12 @@
+# Model B: same student as model A, trained by distillation from a full ResNet-18 (teacher).
+# It starts from cnn_scratch.yaml and only changes or adds what is specific to distillation.
+# The distillation technique and its hyperparameters are defined in the model B step.
+defaults:
+  - cnn_scratch
+  - _self_
+
+_target_: src.models.distill.DistillModule
+name: cnn_distill
+
+teacher:
+  weights: IMAGENET1K_V1   # torchvision weights of the pretrained ResNet-18

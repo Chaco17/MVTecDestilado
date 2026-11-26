@@ -1,16 +1,25 @@
-# Configuracion principal. Hydra compone este archivo con un archivo de cada grupo.
-# El modelo no tiene valor por defecto: se elige con un override, por ejemplo "model=cnn_scratch".
+# Main config. Hydra takes one option from each group (folder of conf/) and merges them here.
+# Each group becomes a key of the final config: cfg.data, cfg.model, cfg.trainer, cfg.callbacks, cfg.logger.
+#
+# A run is chosen with overrides, for example:
+#   ["+experiment=cnn_scratch/lr3e-4"]          a named combination of conf/experiment/
+#   ["model=unet_ae", "model.z_dim=64"]          any group or single value
 defaults:
   - data: mvtec
-  - model: null
+  - model: cnn_scratch
   - trainer: default
+  - callbacks: default
   - logger: wandb
   - _self_
 
 seed: 42
 
-# Rutas relativas a la raiz del repositorio (el codigo las resuelve contra esa raiz,
-# asi funcionan igual desde notebooks/ que desde la raiz).
+# Run name (W&B and checkpoint folder) and a short description. Each experiment overwrites both.
+name: ${model.name}-default
+description: valores por defecto del modelo
+
+# Paths relative to the repository root (the notebook works from the root)
 paths:
   output_dir: outputs
-  checkpoint_dir: outputs/checkpoints
+  checkpoint_dir: ${paths.output_dir}/checkpoints
+  results_dir: ${paths.output_dir}/results

@@ -1,0 +1,7 @@
+# @package _global_
+# Model A with the default values of conf/model/cnn_scratch.yaml: AdamW lr 1e-3 constant, batch 32.
+defaults:
+  - override /model: cnn_scratch
+
+name: cnn_scratch-base
+description: AdamW lr 1e-3 constante, batch 32

@@ -1,8 +1,11 @@
-# Argumentos de lightning.pytorch.loggers.WandbLogger
+# Arguments of lightning.pytorch.loggers.WandbLogger
+_target_: lightning.pytorch.loggers.WandbLogger
 project: MVTecDestilado
-entity: null
-name: null
-tags: []
+entity: danielpulido-instituto-tecnol-gico-de-costa-rica   # W&B team of the group (each member logs in with their own key)
+name: ${name}
+group: ${model.name}    # groups the runs of each model in W&B
+tags: ["${model.name}"]
+notes: ${description}
 log_model: false
-save_dir: outputs
+save_dir: ${paths.output_dir}
 offline: false

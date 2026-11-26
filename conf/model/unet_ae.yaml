@@ -1,0 +1,19 @@
+# PLACEHOLDER: model C is developed in parallel (see src/models/unet_ae.py for the expected interface).
+# The keys below are a starting point and can be changed freely by the person in charge of model C.
+#
+# Model C: deterministic autoencoder based on U-Net, trained from scratch to reconstruct the images.
+# The embedding is the bottleneck vector of dimension z_dim.
+# The architecture details (depth, which skip connections are kept) are defined in the model C step.
+_target_: src.models.unet_ae.UNetAutoencoderModule
+name: unet_ae
+
+z_dim: 128
+base_channels: 32
+
+optimizer:
+  _target_: torch.optim.AdamW
+  _partial_: true
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+
+scheduler: null

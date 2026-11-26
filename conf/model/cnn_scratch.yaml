@@ -1,0 +1,18 @@
+# Model A: first three stages of ResNet-18 (conv1, conv2_x, conv3_x) with random weights,
+# followed by an FC classifier over the 10 categories.
+# Arguments of the LightningModule. The class is written in the model A step (src/models/).
+_target_: src.models.cnn.CNNClassifierModule
+name: cnn_scratch
+num_classes: ${len:${data.categories}}
+
+head:
+  hidden_dim: 256
+  dropout: 0.3
+
+optimizer:
+  _target_: torch.optim.AdamW
+  _partial_: true    # the parameters are passed later, in configure_optimizers()
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+
+scheduler: null      # constant learning rate unless an experiment sets one

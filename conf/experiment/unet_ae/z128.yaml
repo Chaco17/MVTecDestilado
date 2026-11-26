@@ -1,0 +1,11 @@
+# @package _global_
+# PLACEHOLDER: example combination, to be reviewed by the person in charge of model C.
+# Model C with a bottleneck of dimension 128. Only z_dim changes between the unet_ae experiments.
+defaults:
+  - override /model: unet_ae
+
+name: unet_ae-z128
+description: bottleneck z = 128
+
+model:
+  z_dim: 128

@@ -1,0 +1,30 @@
+# Arguments of src.data.MVTecDataModule (LightningDataModule).
+# Training only uses train/good. 20% of train/good of each category is held out as validation
+# and the anomalies only appear in test/.
+_target_: src.data.MVTecDataModule
+root: data/mvtec_ad
+categories:
+  # Textures
+  - carpet
+  - leather
+  - tile
+  - wood
+  # Objects
+  - bottle
+  - cable
+  - capsule
+  - hazelnut
+  - metal_nut
+  - pill
+image_size: 224
+batch_size: 32
+# The images are decoded once into a uint8 tensor kept in RAM, so reading a batch is only indexing
+# and normalizing. Worker processes would add start up time (Windows copies the tensor to each one)
+# without speeding up anything.
+num_workers: 0
+cache_dir: ${paths.output_dir}/cache
+val_split: 0.2
+seed: ${seed}
+# ImageNet mean and std, because the teacher is a ResNet-18 pretrained on ImageNet
+mean: [0.485, 0.456, 0.406]
+std: [0.229, 0.224, 0.225]

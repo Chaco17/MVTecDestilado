@@ -3,17 +3,18 @@ CLAUDE.md
 CHECKLIST.md
 
 # Datos (MVTec AD se descarga aparte, ver README)
-data/
+# La barra inicial ancla la regla a la raiz, para no ignorar tambien conf/data/
+/data/
 
 # Salidas de Hydra, Lightning y WandB
-outputs/
+/outputs/
 lightning_logs/
 wandb/
 *.ckpt
 
 # Entorno virtual
-.venv/
-venv/
+/.venv/
+/venv/
 
 # Python
 __pycache__/

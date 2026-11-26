@@ -1,0 +1,26 @@
+# Lightning callbacks, one per key. Each block is instantiated and the list is passed to the Trainer.
+
+# EarlyStopping is required in every training run (assignment)
+early_stopping:
+  _target_: lightning.pytorch.callbacks.EarlyStopping
+  monitor: val/loss
+  mode: min
+  patience: 5
+  min_delta: 0.0
+
+# Keeps the best model according to the same metric that EarlyStopping watches
+checkpoint:
+  _target_: lightning.pytorch.callbacks.ModelCheckpoint
+  dirpath: ${paths.checkpoint_dir}/${name}
+  filename: best
+  monitor: val/loss
+  mode: min
+  save_top_k: 1
+
+lr_monitor:
+  _target_: lightning.pytorch.callbacks.LearningRateMonitor
+  logging_interval: epoch
+
+# Keeps the train and val metrics of every epoch (for the tables and curves) and prints them
+epoch_summary:
+  _target_: src.training.EpochSummary
