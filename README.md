@@ -119,6 +119,7 @@ Para que los tres modelos se puedan evaluar igual en `anomalias.ipynb`, cada `Li
 - Expone `get_embedding(x)`, que devuelve un tensor `[B, d]`.
 - Registra `train/loss`, `val/loss` y `test/loss`. `EarlyStopping` y `ModelCheckpoint` vigilan `val/loss`.
 - Cada combinación de hiperparámetros es un archivo en `conf/experiment/<modelo>/` y se entrena con `run_experiment(load_config(["+experiment=<modelo>/<nombre>"]))`.
+- Cada experimento define `name` con el formato `<letra>-<modelo>-<hiperparámetros>` (por ejemplo `A-cnn_scratch-lr3e-4_bs32` o `C-unet_ae-z64`), una `description` y `tags` con la letra, el modelo y un tag por hiperparámetro. Ese nombre se usa en W&B, en la carpeta del checkpoint y en el archivo de resultados.
 
 ## Configuración
 
@@ -130,7 +131,7 @@ Una corrida se elige con overrides. Los experimentos de `conf/experiment/` fijan
 from src.utils import load_config
 from src.training import run_experiment
 
-cfg = load_config(["+experiment=unet_ae/z64"])                  # experimento con nombre
+cfg = load_config(["+experiment=cnn_scratch/lr3e-4_bs32"])     # experimento con nombre
 cfg = load_config(["model=unet_ae", "model.z_dim=32", "data.batch_size=64"])  # valores sueltos
 results = run_experiment(cfg)
 ```

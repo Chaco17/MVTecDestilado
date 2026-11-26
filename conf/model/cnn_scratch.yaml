@@ -1,9 +1,14 @@
 # Model A: first three stages of ResNet-18 (conv1, conv2_x, conv3_x) with random weights,
 # followed by an FC classifier over the 10 categories.
-# Arguments of the LightningModule. The class is written in the model A step (src/models/).
+# Arguments of the LightningModule src.models.cnn.CNNClassifierModule.
 _target_: src.models.cnn.CNNClassifierModule
+_convert_: all   # plain lists/dicts instead of OmegaConf objects (the checkpoint must load with weights_only=True)
 name: cnn_scratch
 num_classes: ${len:${data.categories}}
+
+# Embedding: global average pooling of conv3_x (128 dims). null keeps it, a number adds a linear
+# projection 128 -> z_dim and the embedding is taken after it (still to be decided).
+z_dim: null
 
 head:
   hidden_dim: 256

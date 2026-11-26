@@ -4,8 +4,9 @@
 defaults:
   - override /model: unet_ae
 
-name: unet_ae-z64
-description: bottleneck z = 64
+name: C-unet_ae-z64
+tags: [C, unet_ae, z=64]
+description: Modelo C, bottleneck z = 64
 
 model:
   z_dim: 64

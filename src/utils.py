@@ -18,7 +18,7 @@ def resolve_path(path):
 
 
 def load_config(overrides=None):
-    """Compose conf/config.yaml with optional overrides, e.g. ["+experiment=unet_ae/z64"].
+    """Compose conf/config.yaml with optional overrides, e.g. ["+experiment=cnn_scratch/lr3e-4_bs32"].
 
     The compose API is the one Hydra recommends for Jupyter, where @hydra.main does not work.
     """

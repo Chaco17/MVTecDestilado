@@ -73,7 +73,7 @@ def run_experiment(cfg, retrain=False):
 
     L.seed_everything(cfg.seed, workers=True, verbose=False)
     datamodule = instantiate(cfg.data)
-    model = instantiate(cfg.model, _convert_="all")
+    model = instantiate(cfg.model)
     callbacks = build_callbacks(cfg)
     logger = build_logger(cfg)
     trainer = build_trainer(cfg, callbacks, logger)

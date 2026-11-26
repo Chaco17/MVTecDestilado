@@ -1,0 +1,12 @@
+# @package _global_
+# Lower learning rate: smaller and more stable steps. Only the lr changes with respect to lr1e-3_bs32.
+defaults:
+  - override /model: cnn_scratch
+
+name: A-cnn_scratch-lr3e-4_bs32
+description: Modelo A, AdamW lr 3e-4 constante, batch 32
+tags: [A, cnn_scratch, lr=3e-4, bs=32, lr_constante]
+
+model:
+  optimizer:
+    lr: 3.0e-4

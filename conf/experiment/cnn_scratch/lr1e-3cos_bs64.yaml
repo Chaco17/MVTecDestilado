@@ -1,14 +1,20 @@
 # @package _global_
 # Twice the batch size (less noisy gradients, half the steps per epoch) and a learning rate that
 # decays from 1e-3 to 1e-5 following a cosine: big steps at the start and fine adjustments at the end.
+# max_epochs drops to 20 so the cosine completes its decay: in the first version (T_max = 50) the run
+# stopped early at epoch 15 and the learning rate had barely changed.
 defaults:
   - override /model: cnn_scratch
 
-name: cnn_scratch-bs64_cos
-description: AdamW lr coseno 1e-3 -> 1e-5, batch 64
+name: A-cnn_scratch-lr1e-3cos_bs64
+description: Modelo A, AdamW lr coseno 1e-3 -> 1e-5 en 20 epocas, batch 64
+tags: [A, cnn_scratch, lr=1e-3, bs=64, lr_coseno]
 
 data:
   batch_size: 64
+
+trainer:
+  max_epochs: 20
 
 model:
   scheduler:

@@ -78,7 +78,7 @@ class MVTecDataModule(L.LightningDataModule):
                  cache_dir="outputs/cache", val_split=0.2,
                  mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225), seed=42):
         super().__init__()
-        self.save_hyperparameters()
+        self.save_hyperparameters(logger=False)  # src/training.py already logs the full config
         self.root = resolve_path(root)
         self.categories = list(categories)
         cache_dir = resolve_path(cache_dir)

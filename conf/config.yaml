@@ -2,7 +2,7 @@
 # Each group becomes a key of the final config: cfg.data, cfg.model, cfg.trainer, cfg.callbacks, cfg.logger.
 #
 # A run is chosen with overrides, for example:
-#   ["+experiment=cnn_scratch/lr3e-4"]          a named combination of conf/experiment/
+#   ["+experiment=cnn_scratch/lr3e-4_bs32"]     a named combination of conf/experiment/
 #   ["model=unet_ae", "model.z_dim=64"]          any group or single value
 defaults:
   - data: mvtec
@@ -14,9 +14,13 @@ defaults:
 
 seed: 42
 
-# Run name (W&B and checkpoint folder) and a short description. Each experiment overwrites both.
+# Run identity in W&B (also the checkpoint folder and results file). Each experiment overwrites them.
+#   name:        <model letter>-<model>-<hyperparameters>, e.g. A-cnn_scratch-lr3e-4_bs32
+#   description: the hyperparameters in words (W&B notes)
+#   tags:        model letter, model and one tag per hyperparameter, to filter runs in W&B
 name: ${model.name}-default
 description: valores por defecto del modelo
+tags: ["${model.name}"]
 
 # Paths relative to the repository root (the notebook works from the root)
 paths:

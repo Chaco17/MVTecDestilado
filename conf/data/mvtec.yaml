@@ -2,6 +2,7 @@
 # Training only uses train/good. 20% of train/good of each category is held out as validation
 # and the anomalies only appear in test/.
 _target_: src.data.MVTecDataModule
+_convert_: all   # plain lists/dicts instead of OmegaConf objects (the checkpoint must load with weights_only=True)
 root: data/mvtec_ad
 categories:
   # Textures
