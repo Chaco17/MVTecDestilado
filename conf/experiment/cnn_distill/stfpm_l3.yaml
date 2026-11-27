@@ -1,0 +1,17 @@
+# @package _global_
+# Model B, STFPM only on conv3_x, the stage the embedding is taken from. Compared with stfpm_l23 it
+# shows whether supervising the intermediate stage (conv2_x) also helps.
+defaults:
+  - override /model: cnn_distill
+
+name: B-cnn_distill-stfpm_l3_lr3e-4
+description: Modelo B, STFPM solo en conv3_x, AdamW lr coseno 3e-4 -> 1e-5, batch 32
+tags: [B, cnn_distill, stfpm, capas=conv3_x, adamw, lr=3e-4, bs=32, lr_coseno]
+
+model:
+  distill:
+    layers: [conv3_x]
+
+callbacks:
+  early_stopping:
+    patience: 10

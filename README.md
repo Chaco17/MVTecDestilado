@@ -19,19 +19,28 @@ conf/                      configuración de Hydra
     cnn_distill.yaml       modelo B (hereda de cnn_scratch y agrega el teacher)
     unet_ae.yaml           modelo C
   trainer/default.yaml     argumentos de lightning.Trainer
-  callbacks/default.yaml   EarlyStopping, ModelCheckpoint, LearningRateMonitor
+  callbacks/default.yaml   EarlyStopping, ModelCheckpoint, LearningRateMonitor, EpochSummary
   logger/wandb.yaml        WandbLogger
   experiment/<modelo>/     combinaciones de hiperparámetros con nombre (al menos 3 por modelo)
-src/                       código auxiliar que importa el notebook
-  data.py                  MVTecDataset y MVTecDataModule
-  models/                  un LightningModule por modelo
-  training.py              construye Trainer, callbacks y logger desde la configuración
-  utils.py                 raíz del repositorio y composición de la configuración
+    cnn_scratch/           lr1e-3_bs32, lr3e-4_bs32, lr1e-3cos_bs64
+    cnn_distill/           stfpm_l23, stfpm_l3, stfpm_l23_sgd
+    unet_ae/               z64, z128, z256 (de ejemplo, en desarrollo)
+src/                       código auxiliar que importan los notebooks
+  utils.py                 raíz del repositorio, rutas y composición de la configuración
+  data.py                  MVTecDataset y MVTecDataModule (cache de imágenes en RAM)
+  models/
+    common.py              optimizador y scheduler a partir de los parciales de Hydra
+    cnn.py                 modelo A: ResNet18Stem (conv1 a conv3_x), clasificador y LightningModule
+    distill.py             modelo B: destilado STFPM con un ResNet-18 preentrenado como teacher
+    unet_ae.py             modelo C (en desarrollo)
+  training.py              Trainer, callbacks y logger desde la configuración, run_experiment y load_trained_model
+  comparison.py            costo (parámetros, FLOPs), tiempo de inferencia y similitud de features con el teacher
+  reporting.py             tablas de resultados y gráficos plotly (se muestran en el notebook y se registran en W&B)
 notebooks/                 ejecución del entrenamiento y del análisis
-  datos.ipynb           exploración de MVTec AD y verificación del DataModule
-  modelos_ab.ipynb      modelo A (CNN desde cero) y modelo B (CNN destilada)
-  modelo_c.ipynb        modelo C (autoencoder U-Net)
-  anomalias.ipynb       detección de anomalías con embeddings y DBSCAN
+  datos.ipynb              exploración de MVTec AD y verificación del DataModule
+  modelos_ab.ipynb         modelo A (CNN desde cero), modelo B (CNN destilada) y su comparación
+  modelo_c.ipynb           modelo C (autoencoder U-Net)
+  anomalias.ipynb          detección de anomalías con embeddings y DBSCAN
 report/                    informe y figuras
 docs/                      enunciado del proyecto
 data/                      MVTec AD (no se versiona)
@@ -39,6 +48,16 @@ outputs/                   cache, checkpoints, resultados y W&B (no se versiona)
 ```
 
 Las clases viven en `src/` como scripts auxiliares, y el entrenamiento se ejecuta desde el notebook, como pide el enunciado.
+
+## Modelos
+
+| Modelo | Arquitectura | Entrenamiento | Embedding |
+|---|---|---|---|
+| A | `conv1`, `conv2_x` y `conv3_x` de ResNet-18 con pesos aleatorios, más un clasificador FC | Clasificación de las 10 categorías con entropía cruzada | *Average pooling* de `conv3_x` (128 dimensiones) |
+| B | La misma red que A | Entropía cruzada más destilado STFPM (Wang et al., 2021): el student imita las features de `conv2_x` y `conv3_x` de un ResNet-18 preentrenado en ImageNet y congelado | El mismo que A |
+| C | Autoencoder U-Net | Reconstrucción de las imágenes | Vector del cuello de botella (`z_dim`) |
+
+A y B tienen 0.72 millones de parámetros, el 6.1 % de los 11.7 millones de un ResNet-18 completo. La comparación entre ellos (costo, tiempo de inferencia y similitud con el teacher) está en la sección 4 de `modelos_ab.ipynb`.
 
 ## Instalación
 
@@ -98,9 +117,15 @@ data/mvtec_ad/<categoria>/ground_truth/<tipo_defecto>/
 
 Los notebooks se abren con el kernel del entorno y se ejecutan en orden, desde la carpeta `notebooks/`. La primera ejecución de cualquiera de ellos construye un cache de las imágenes redimensionadas en `outputs/cache/`, lo que tarda un par de minutos. `anomalias.ipynb` necesita los checkpoints que dejan `modelos_ab.ipynb` y `modelo_c.ipynb` en `outputs/checkpoints/`.
 
+Una corrida que ya se entrenó (existen `outputs/results/<corrida>.json` y su checkpoint) se omite al volver a ejecutar el notebook, así que no se repiten entrenamientos ni se duplican corridas en W&B. Para reentrenar se pone `RETRAIN = True` en la celda de entrenamiento.
+
 ```powershell
 python -m ipykernel install --user --name mvtec --display-name "Python (mvtec)"
 ```
+
+## Gráficos
+
+Los gráficos se hacen con plotly. Cada figura se muestra en el notebook, donde queda guardada y es interactiva, así que se puede ver sin una cuenta de W&B. La misma figura se registra en una run de análisis de W&B (`analisis-modelo-A`, `analisis-modelo-B` y `analisis-comparacion-AB`, con `job_type` analysis y grupo `analisis`). Esas runs tienen un id fijo, así que volver a ejecutar el notebook las actualiza en lugar de duplicarlas. Las funciones están en `src/reporting.py` (`train_val_figure`, `runs_figure`, `bar_figure` y `log_figures`).
 
 ## Trabajo en paralelo
 
@@ -118,7 +143,7 @@ Para que los tres modelos se puedan evaluar igual en `anomalias.ipynb`, cada `Li
 - Se construye con `instantiate(cfg.model)`, así que su `__init__` recibe exactamente las llaves de su YAML, y llama `self.save_hyperparameters(logger=False)`.
 - Expone `get_embedding(x)`, que devuelve un tensor `[B, d]`.
 - Registra `train/loss`, `val/loss` y `test/loss`. `EarlyStopping` y `ModelCheckpoint` vigilan `val/loss`.
-- Cada combinación de hiperparámetros es un archivo en `conf/experiment/<modelo>/` y se entrena con `run_experiment(load_config(["+experiment=<modelo>/<nombre>"]))`.
+- Cada combinación de hiperparámetros es un archivo en `conf/experiment/<modelo>/` y se entrena con `run_experiment(load_config(["+experiment=<modelo>/<nombre>"]))`. El modelo entrenado se recupera con `load_trained_model(cfg)` de `src/training.py`.
 - Cada experimento define `name` con el formato `<letra>-<modelo>-<hiperparámetros>` (por ejemplo `A-cnn_scratch-lr3e-4_bs32` o `C-unet_ae-z64`), una `description` y `tags` con la letra, el modelo y un tag por hiperparámetro. Ese nombre se usa en W&B, en la carpeta del checkpoint y en el archivo de resultados.
 
 ## Configuración

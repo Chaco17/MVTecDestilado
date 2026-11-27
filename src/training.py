@@ -61,6 +61,22 @@ def build_trainer(cfg, callbacks, logger=None):
                        logger=logger if logger is not None else False)
 
 
+def load_trained_model(cfg, results=None):
+    """Model of cfg.model with the weights of its best checkpoint, in eval mode.
+
+    The model is rebuilt from the config (the optimizer partials are not stored in the checkpoint)
+    and the checkpoint is read with weights_only=True.
+    """
+    import torch
+
+    results_file = resolve_path(cfg.paths.results_dir) / f"{cfg.name}.json"
+    results = results or json.loads(results_file.read_text(encoding="utf-8"))
+    model = instantiate(cfg.model)
+    checkpoint = torch.load(PROJECT_ROOT / results["checkpoint"], map_location="cpu", weights_only=True)
+    model.load_state_dict(checkpoint["state_dict"])
+    return model.eval()
+
+
 def run_experiment(cfg, retrain=False):
     """Train one configuration (fit, then test with the best checkpoint) and save a JSON summary.
 
@@ -68,8 +84,13 @@ def run_experiment(cfg, retrain=False):
     """
     results_file = resolve_path(cfg.paths.results_dir) / f"{cfg.name}.json"
     if results_file.exists() and not retrain:
-        print(f"{cfg.name}: ya entrenado, se cargan sus resultados de {results_file.name}")
-        return json.loads(results_file.read_text(encoding="utf-8"))
+        results = json.loads(results_file.read_text(encoding="utf-8"))
+        # The run is only skipped if its checkpoint is also there (the anomaly detector needs it)
+        if (PROJECT_ROOT / results["checkpoint"]).exists():
+            print(f"{cfg.name}: omitida, ya fue entrenada. Se cargan sus resultados de {results_file.name}"
+                  f" y su checkpoint es {results['checkpoint']}")
+            return results
+        print(f"{cfg.name}: hay resultados pero falta el checkpoint {results['checkpoint']}, se entrena de nuevo")
 
     L.seed_everything(cfg.seed, workers=True, verbose=False)
     datamodule = instantiate(cfg.data)

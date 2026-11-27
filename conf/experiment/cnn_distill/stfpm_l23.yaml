@@ -1,0 +1,15 @@
+# @package _global_
+# Model B, STFPM on the two stages the student shares with the teacher (conv2_x and conv3_x),
+# AdamW lr 3e-4 with cosine decay, batch 32. It is the reference of the model B combinations.
+# Patience 10: the STFPM loss goes down slowly (about 0.005 per epoch) and isolated spikes of the
+# cross entropy should not stop training while the student is still learning.
+defaults:
+  - override /model: cnn_distill
+
+name: B-cnn_distill-stfpm_l23_lr3e-4
+description: Modelo B, STFPM en conv2_x y conv3_x, AdamW lr coseno 3e-4 -> 1e-5, batch 32
+tags: [B, cnn_distill, stfpm, capas=conv2_x+conv3_x, adamw, lr=3e-4, bs=32, lr_coseno]
+
+callbacks:
+  early_stopping:
+    patience: 10
